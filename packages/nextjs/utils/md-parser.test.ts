@@ -1,4 +1,4 @@
-import { parse, render } from "./md-parser";
+import { parseMd, renderMd } from "./md-parser";
 import { describe, expect, test } from "vitest";
 
 const EXAMPLE_MD_INPUT = `Any kind of md document, with any kind of content, lists and checklists
@@ -47,17 +47,17 @@ const EXPECTED_MD_RENDER = `Any kind of md document, with any kind of content, l
 `;
 
 describe("md-parser", async () => {
-  const { tree, checkboxes } = await parse(EXAMPLE_MD_INPUT);
+  const { tree, currentCheckboxes, defaultCheckboxes } = await parseMd(EXAMPLE_MD_INPUT);
 
   test("correctly clears up the checklist (against EXPECTED_MD_TEMPLATE)", async () => {
     expect(tree).toBeTruthy();
-    const renderedEmpty = await render({ tree, checkboxes: [] });
+    const renderedEmpty = await renderMd({ tree, checkboxes: defaultCheckboxes });
     expect(renderedEmpty).toEqual(EXPECTED_MD_TEMPLATE);
   });
 
   test("correctly applies custom checkboxes (against EXPECTED_MD_RENDER)", async () => {
-    checkboxes[0].conclusion = "correct";
-    const renderedWithChecks = await render({ tree, checkboxes });
+    currentCheckboxes[0].conclusion = "correct";
+    const renderedWithChecks = await renderMd({ tree, checkboxes: currentCheckboxes });
     expect(renderedWithChecks).toEqual(EXPECTED_MD_RENDER);
   });
 });

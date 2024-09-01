@@ -102,7 +102,7 @@ const renderCustomMarkers = function (node: Checkbox) {
   }
 };
 
-export const parse = async function (text: string) {
+export const parseMd = async function (text: string) {
   const tree = await unified().use(remarkParse).use(remarkGfm).parse(text);
   // console.log(JSON.stringify(tree, null, 2));
   // add json `path` property to every node
@@ -110,21 +110,23 @@ export const parse = async function (text: string) {
     // @ts-expect-error
     node.path = parent ? `${parent.path}/children/${index}` : "";
   });
-  const checkboxes: Checkbox[] = [];
+  const currentCheckboxes: Checkbox[] = [];
+  const defaultCheckboxes: Checkbox[] = [];
   visit(tree, "listItem", function (node: Checkbox) {
     parseCustomMarkers(node);
     // collect all checkboxes into one list
     if (node.checked !== null && node.checked !== undefined) {
-      checkboxes.push({ ...node });
+      currentCheckboxes.push({ ...node });
       // remove all recorded states
       node.checked = false;
       node.conclusion = undefined;
+      defaultCheckboxes.push({ ...node });
     }
   });
-  return { tree, checkboxes };
+  return { tree, currentCheckboxes, defaultCheckboxes };
 };
 
-export const render = async function ({ tree, checkboxes }: { tree: Root; checkboxes: Checkbox[] }) {
+export const renderMd = async function ({ tree, checkboxes }: { tree: Root; checkboxes: Checkbox[] }) {
   // apply modified checkboxes back to the md tree
   for (const checkbox of checkboxes) {
     // @ts-expect-error
