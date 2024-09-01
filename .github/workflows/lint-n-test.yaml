@@ -1,4 +1,4 @@
-name: Lint
+name: Lint and test
 
 on:
   push:
@@ -35,6 +35,9 @@ jobs:
 
       - name: Run nextjs lint
         run: yarn next:lint --max-warnings=0
+
+      - name: Run nextjs test
+        run: yarn next:test
 
       - name: Check typings on nextjs
         run: yarn next:check-types

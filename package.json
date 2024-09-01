@@ -26,6 +26,7 @@
     "format": "yarn next:format && yarn hardhat:format",
     "start": "yarn workspace @se-2/nextjs dev",
     "next:lint": "yarn workspace @se-2/nextjs lint",
+    "next:test": "yarn workspace @se-2/nextjs test",
     "next:format": "yarn workspace @se-2/nextjs format",
     "next:check-types": "yarn workspace @se-2/nextjs check-types",
     "next:build": "yarn workspace @se-2/nextjs build",
