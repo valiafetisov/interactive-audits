@@ -26,15 +26,13 @@ const Home: NextPage = () => {
 
   return (
     <>
-      <div className="flex items-center flex-col flex-grow pt-10">
-        <div className="px-5">
-          <h1 className="text-center">
-            <span className="block text-4xl font-bold">Interactive On-chain Audits</span>
-          </h1>
+      <div className="flex items-center flex-col flex-grow">
+        <div className="h-32 flex items-center">
+          <h1 className="text-center block text-4xl font-bold">Interactive On-chain Audits</h1>
         </div>
-        <div className="flex-grow bg-base-300 w-full mt-16 px-8 py-12 space-y-4">
+        <div className="flex-grow w-full bg-base-300 px-8 py-12 space-y-4">
           <h2 className="text-center">
-            <span className="block text-2xl font-bold">Your audits</span>
+            <span className="block text-2xl font-bold">Your drafts</span>
           </h2>
           {hydrated ? (
             <>
