@@ -12,7 +12,7 @@ interface MarkdownRendererProps {
 interface ClickableListItemProps {
   children: React.ReactNode;
   isSelected: boolean;
-  setSelectedKey: (text: string) => void; // Update to accept text
+  setSelectedKey: () => void;
 }
 
 function getKeyFromPosition(position: any) {
@@ -22,7 +22,7 @@ function getKeyFromPosition(position: any) {
 const ClickableListItem = ({ children, setSelectedKey, isSelected }: ClickableListItemProps) => {
   const handleClick = (event: React.MouseEvent<HTMLLIElement>) => {
     event.stopPropagation();
-    setSelectedKey(event.currentTarget.textContent ?? "");
+    setSelectedKey();
     console.log(`Clicked list item:`, event.currentTarget.textContent?.trim());
   };
 
@@ -35,7 +35,6 @@ const ClickableListItem = ({ children, setSelectedKey, isSelected }: ClickableLi
 
 export const MarkdownRenderer = ({ markdown }: MarkdownRendererProps) => {
   const [selectedKey, setSelectedKey] = useState("");
-  const [selectedStatus, setSelectedStatus] = useState("");
   const [markdownContent, setMarkdownContent] = useState("");
   const [checkboxes, setCheckboxes] = useState<Checkbox[]>([]);
 
@@ -56,16 +55,12 @@ export const MarkdownRenderer = ({ markdown }: MarkdownRendererProps) => {
     fetchCheckboxes();
   }, [markdownContent]);
 
-  const handleStatusChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedStatus(event.target.value);
-  };
-
-  const handleStatusSubmit = async () => {
+  const handleStatusSubmit = async (selectedStatus: Checkbox["conclusion"]) => {
     const updatedCheckboxes = checkboxes.map(checkbox => {
       const checkboxKey = getKeyFromPosition(checkbox.position);
 
       if (checkboxKey === selectedKey) {
-        checkbox.conclusion = selectedStatus as Checkbox["conclusion"];
+        checkbox.conclusion = selectedStatus;
       }
       return checkbox;
     });
@@ -97,13 +92,7 @@ export const MarkdownRenderer = ({ markdown }: MarkdownRendererProps) => {
             // Generate a unique key for the list item based on its position
             const key = getKeyFromPosition(props.node.position);
             return (
-              <ClickableListItem
-                setSelectedKey={text => {
-                  setSelectedKey(key);
-                  setSelectedStatus(text); // Set the selected status based on the clicked item's text
-                }}
-                isSelected={selectedKey === key}
-              >
+              <ClickableListItem setSelectedKey={() => setSelectedKey(key)} isSelected={selectedKey === key}>
                 {children}
               </ClickableListItem>
             );
@@ -116,19 +105,17 @@ export const MarkdownRenderer = ({ markdown }: MarkdownRendererProps) => {
 
       {selectedKey && (
         <div className="w-[calc(100%-2rem)] flex fixed z-20 bottom-16 shadow-sm gap-2">
-          <select
-            value={selectedStatus}
-            onChange={handleStatusChange}
-            className="flex-grow h-8 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          >
-            <option value="">Select Status</option>
-            <option value="correct">Correct</option>
-            <option value="critical">Critical</option>
-            <option value="acceptable">Acceptable</option>
-            <option value="not applicable">Not Applicable</option>
-          </select>
-          <button className="btn btn-sm btn-outline bg-white" onClick={handleStatusSubmit}>
-            Update
+          <button className="btn btn-sm btn-outline bg-white" onClick={() => handleStatusSubmit("correct")}>
+            Correct
+          </button>
+          <button className="btn btn-sm btn-outline bg-white" onClick={() => handleStatusSubmit("critical")}>
+            Critical
+          </button>
+          <button className="btn btn-sm btn-outline bg-white" onClick={() => handleStatusSubmit("acceptable")}>
+            Acceptable
+          </button>
+          <button className="btn btn-sm btn-outline bg-white" onClick={() => handleStatusSubmit("not applicable")}>
+            Not Applicable
           </button>
         </div>
       )}
