@@ -7,7 +7,7 @@ import { useHydrateDraftAudits } from "~~/services/store";
 import type { Audit } from "~~/types";
 import { notification } from "~~/utils/scaffold-eth";
 
-export default function AuditPage() {
+export default function DraftPage() {
   const router = useRouter();
   const params = useParams();
   const id = params.id as string;

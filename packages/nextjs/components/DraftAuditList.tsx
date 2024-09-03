@@ -7,12 +7,12 @@ import { notification } from "~~/utils/scaffold-eth";
 /**
  * Audit list from user local storage
  */
-export const AuditList = () => {
+export const DraftAuditList = () => {
   const router = useRouter();
   const { draftAudits, removeDraftAudit } = useHydrateDraftAudits();
 
   function editAudit(id: string) {
-    router.push(`/audit/${id}`);
+    router.push(`/draft/${id}`);
   }
 
   function deleteAudit(id: string) {

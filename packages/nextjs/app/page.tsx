@@ -3,32 +3,25 @@
 import { useRouter } from "next/navigation";
 import type { NextPage } from "next";
 import { PlusCircleIcon } from "@heroicons/react/24/outline";
-import { AuditList } from "~~/components/AuditList";
+import { DraftAuditList } from "~~/components/DraftAuditList";
 import { useHydrateDraftAudits } from "~~/services/store";
 
 const Home: NextPage = () => {
   const router = useRouter();
-  const { draftAudits, addDraftAudit, hydrated } = useHydrateDraftAudits();
+  const { addDraftAudit, hydrated } = useHydrateDraftAudits();
 
   function createNewAudit() {
-    const defaultTitle = "Untitled_Audit";
+    const defaultTitle = `Draft created at ${new Date().toLocaleDateString()}`;
 
-    const numbers = draftAudits.map(audit => {
-      const match = audit.id.match(/audit_(\d+)/);
-      return match ? parseInt(match[1], 10) : -1;
-    });
-
-    const nextId = numbers.length ? Math.max(...numbers) + 1 : 1;
-
-    const id = `audit_${nextId.toString()}`;
+    const id = crypto.randomUUID();
     addDraftAudit({
       id: id,
       title: defaultTitle,
       data: "",
-      createdAt: new Date().toISOString(),
+      createdAt: new Date(),
     });
 
-    router.push(`/audit/${id}`);
+    router.push(`/draft/${id}`);
   }
 
   return (
@@ -45,7 +38,7 @@ const Home: NextPage = () => {
           </h2>
           {hydrated ? (
             <>
-              <AuditList />
+              <DraftAuditList />
               <button className="btn btn-primary btn-md rounded-full" onClick={createNewAudit}>
                 <PlusCircleIcon className="w-6 h-6" />
                 Create new audit from scratch
