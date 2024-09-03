@@ -23,7 +23,6 @@ const ClickableListItem = ({ children, setSelectedKey, isSelected }: ClickableLi
   const handleClick = (event: React.MouseEvent<HTMLLIElement>) => {
     event.stopPropagation();
     setSelectedKey();
-    console.log(`Clicked list item:`, event.currentTarget.textContent?.trim());
   };
 
   return (
@@ -104,7 +103,7 @@ export const MarkdownRenderer = ({ markdown }: MarkdownRendererProps) => {
       </ReactMarkdown>
 
       {selectedKey && (
-        <div className="w-[calc(100%-2rem)] flex fixed z-20 bottom-16 shadow-sm gap-2">
+        <div className="w-[calc(100%-2rem)] flex fixed z-20 bottom-16 gap-2">
           <button className="btn btn-sm btn-outline bg-white" onClick={() => handleStatusSubmit("correct")}>
             Correct
           </button>
