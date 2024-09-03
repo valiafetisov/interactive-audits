@@ -39,7 +39,7 @@ const Home: NextPage = () => {
               <DraftAuditList />
               <button className="btn btn-primary btn-md rounded-full" onClick={createNewAudit}>
                 <PlusCircleIcon className="w-6 h-6" />
-                Create new audit from scratch
+                Create new draft from scratch
               </button>
             </>
           ) : (

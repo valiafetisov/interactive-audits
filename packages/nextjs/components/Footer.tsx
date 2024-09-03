@@ -6,7 +6,7 @@ import { HeartIcon } from "@heroicons/react/24/outline";
  */
 export const Footer = () => {
   return (
-    <div className="min-h-0 py-5 px-1 lg:mb-0 flex justify-center items-center">
+    <div className="min-h-0 py-5 px-1 lg:mb-0 flex justify-center gap-2 items-center">
       <p className="m-0 text-center">
         Built with <HeartIcon className="inline-block h-4 w-4" /> at
       </p>
