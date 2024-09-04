@@ -61,7 +61,7 @@ export const MarkdownRenderer = ({ markdown, setMarkdown }: MarkdownRendererProp
       prevMarkdownRef.current = renderedMarkdown;
     };
     fetchMarkdown();
-  }, [checkboxes]);
+  }, [checkboxes, setMarkdown, tree]);
 
   const handleStatusSubmit = (selectedStatus: Checkbox["conclusion"]) => {
     const updatedCheckboxes = checkboxes.map(checkbox => {
