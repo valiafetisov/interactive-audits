@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { Root } from "mdast";
 import ReactMarkdown from "react-markdown";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import remarkGfm from "remark-gfm";
@@ -7,6 +8,7 @@ import { Checkbox, parseMd, renderMd } from "~~/utils/md-parser";
 
 interface MarkdownRendererProps {
   markdown: string;
+  setMarkdown: (markdown: string) => void;
 }
 
 interface ClickableListItemProps {
@@ -16,7 +18,7 @@ interface ClickableListItemProps {
 }
 
 function getKeyFromPosition(position: any) {
-  return JSON.stringify({ start: position.start.line, end: position.end.line });
+  return `${position.start.line}-${position.end.line}`;
 }
 
 const ClickableListItem = ({ children, setSelectedKey, isSelected }: ClickableListItemProps) => {
@@ -32,42 +34,44 @@ const ClickableListItem = ({ children, setSelectedKey, isSelected }: ClickableLi
   );
 };
 
-export const MarkdownRenderer = ({ markdown }: MarkdownRendererProps) => {
+export const MarkdownRenderer = ({ markdown, setMarkdown }: MarkdownRendererProps) => {
   const [selectedKey, setSelectedKey] = useState("");
-  const [markdownContent, setMarkdownContent] = useState("");
   const [checkboxes, setCheckboxes] = useState<Checkbox[]>([]);
+  const [tree, setTree] = useState<Root | null>(null);
+  const prevMarkdownRef = useRef("");
+
+  useEffect(() => {
+    // Only re-parse the markdown when it was changed
+    if (markdown === prevMarkdownRef.current) return;
+    const fetchMarkdown = async () => {
+      const { tree: currentTree, currentCheckboxes } = await parseMd(markdown);
+      setTree(currentTree);
+      setCheckboxes(currentCheckboxes);
+    };
+    fetchMarkdown();
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [markdown, setMarkdown]);
 
   useEffect(() => {
     const fetchMarkdown = async () => {
-      const { tree, currentCheckboxes } = await parseMd(markdown);
-      const renderedMarkdown = await renderMd({ tree, checkboxes: currentCheckboxes });
-      setMarkdownContent(renderedMarkdown);
+      if (!tree) return; // tree should exist at this point
+      const renderedMarkdown = await renderMd({ tree, checkboxes });
+      setMarkdown(renderedMarkdown);
+      prevMarkdownRef.current = renderedMarkdown;
     };
     fetchMarkdown();
-  }, [markdown]);
+  }, [checkboxes]);
 
-  useEffect(() => {
-    const fetchCheckboxes = async () => {
-      const { currentCheckboxes } = await parseMd(markdownContent);
-      setCheckboxes(currentCheckboxes);
-    };
-    fetchCheckboxes();
-  }, [markdownContent]);
-
-  const handleStatusSubmit = async (selectedStatus: Checkbox["conclusion"]) => {
+  const handleStatusSubmit = (selectedStatus: Checkbox["conclusion"]) => {
     const updatedCheckboxes = checkboxes.map(checkbox => {
       const checkboxKey = getKeyFromPosition(checkbox.position);
-
       if (checkboxKey === selectedKey) {
         checkbox.conclusion = selectedStatus;
       }
       return checkbox;
     });
-
-    // Update the markdown tree with the new checkboxes
-    const { tree } = await parseMd(markdownContent);
-    const renderedMarkdown = await renderMd({ tree, checkboxes: updatedCheckboxes });
-    setMarkdownContent(renderedMarkdown); // Update the displayed markdown content
+    setCheckboxes(updatedCheckboxes);
   };
 
   return (
@@ -99,7 +103,7 @@ export const MarkdownRenderer = ({ markdown }: MarkdownRendererProps) => {
           // Other markdown elements will use default rendering
         }}
       >
-        {markdownContent}
+        {markdown}
       </ReactMarkdown>
 
       {selectedKey && (

@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import MarkdownEditor from "@uiw/react-markdown-editor";
 import type { NextPage } from "next";
 import { CodeBracketIcon, PencilSquareIcon } from "@heroicons/react/24/outline";
 import { MarkdownRenderer } from "~~/components/MarkdownRenderer";
+import { parseMd, renderMd } from "~~/utils/md-parser";
 
 const markdownText = `
 # My Markdown Document
@@ -16,69 +17,23 @@ const markdownText = `
 - [x] hi
   - [x] hi
     - [x] hi
-
-
-- ✅ Task 1: Complete the project
-- ❌ Task 2: Missed the deadline
-- ⚠️ Task 3: Needs review
-- [ ] empty
-- [x] hi
-  - [x] hi
-    - [x] hi
-
-
-- ✅ Task 1: Complete the project
-- ❌ Task 2: Missed the deadline
-- ⚠️ Task 3: Needs review
-- [ ] empty
-- [x] hi
-  - [x] hi
-    - [x] hi
-
-
-- ✅ Task 1: Complete the project
-- ❌ Task 2: Missed the deadline
-- ⚠️ Task 3: Needs review
-- [ ] empty
-- [x] hi
-  - [x] hi
-    - [x] hi
-
-
-- ✅ Task 1: Complete the project
-- ❌ Task 2: Missed the deadline
-- ⚠️ Task 3: Needs review
-- [ ] empty
-- [x] hi
-  - [x] hi
-    - [x] hi
-
-
-- ✅ Task 1: Complete the project
-- ❌ Task 2: Missed the deadline
-- ⚠️ Task 3: Needs review
-- [ ] empty
-- [x] hi
-  - [x] hi
-    - [x] hi
-
-
-## Subheading
-
-Here is some text with **bold** and _italic_ formatting.
-
-### List of Items
-
-1. First item
-2. Second item
-3. Third item
-
-> This is a blockquote.
 `;
 
 const Editable: NextPage = () => {
   const [mode, setMode] = useState<"fillIn" | "editSource">("fillIn");
-  const [markdown, setMarkDown] = useState(markdownText);
+  const [markdown, setMarkdown] = useState(markdownText);
+
+  useEffect(() => {
+    const fetchMarkdown = async () => {
+      // parse the markdown checklist conclusions into emojis
+      const { tree, currentCheckboxes } = await parseMd(markdown);
+      const renderedMarkdown = await renderMd({ tree, checkboxes: currentCheckboxes });
+      setMarkdown(renderedMarkdown);
+    };
+    fetchMarkdown();
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mode]);
 
   return (
     <div className="py-4 flex flex-col gap-2">
@@ -96,8 +51,8 @@ const Editable: NextPage = () => {
           </button>
         )}
       </div>
-      {mode === "fillIn" && <MarkdownRenderer markdown={markdown} />}
-      {mode === "editSource" && <MarkdownEditor value={markdown} onChange={(value: string) => setMarkDown(value)} />}
+      {mode === "fillIn" && <MarkdownRenderer markdown={markdown} setMarkdown={setMarkdown} />}
+      {mode === "editSource" && <MarkdownEditor value={markdown} onChange={(value: string) => setMarkdown(value)} />}
     </div>
   );
 };
