@@ -60,9 +60,14 @@
   list-style-type: lower-roman;
 }
 
+.clickable-list-item {
+  @apply p-[1px];
+}
+
 /* Background color for selected items */
 .clickable-list-item.selected {
   background-color: #e0f7fa;
+  @apply rounded-lg;
 }
 
 /* General styles for headers */

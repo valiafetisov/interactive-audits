@@ -71,7 +71,7 @@ export const MarkdownRenderer = ({ markdown }: MarkdownRendererProps) => {
   };
 
   return (
-    <div className="markdown-body">
+    <div onClick={() => setSelectedKey("")} className="markdown-body bg-white p-2">
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         components={{
