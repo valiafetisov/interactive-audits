@@ -76,7 +76,7 @@ export const InteractiveMarkdownForm = ({ markdown, setMarkdown }: MarkdownRende
   };
 
   return (
-    <div onClick={() => setSelectedKey("")} className="markdown-body bg-white p-2">
+    <div onClick={() => setSelectedKey("")} className="markdown-body bg-white p-2 h-full">
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         components={{

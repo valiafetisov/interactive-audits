@@ -33,7 +33,7 @@ const AuditView = ({ audit, saveAudit }: { audit: Audit; saveAudit: (audit: Audi
   }, [mode]);
 
   return (
-    <div className="py-4 flex flex-col gap-2 ">
+    <div className="space-y-4 h-full">
       <div className="flex justify-between">
         {/* Title */}
         <div className="flex items-center gap-2">
@@ -91,8 +91,10 @@ const AuditView = ({ audit, saveAudit }: { audit: Audit; saveAudit: (audit: Audi
         </div>
       </div>
 
-      {mode === "fillIn" && <InteractiveMarkdownForm markdown={markdown} setMarkdown={setMarkdown} />}
-      {mode === "editSource" && <MarkdownEditor value={markdown} onChange={(value: string) => setMarkdown(value)} />}
+      <div className="h-full">
+        {mode === "fillIn" && <InteractiveMarkdownForm markdown={markdown} setMarkdown={setMarkdown} />}
+        {mode === "editSource" && <MarkdownEditor value={markdown} onChange={(value: string) => setMarkdown(value)} />}
+      </div>
     </div>
   );
 };
