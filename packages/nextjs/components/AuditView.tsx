@@ -1,13 +1,33 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { SignProtocolClient } from "@ethsign/sp-sdk";
 import MarkdownEditor from "@uiw/react-markdown-editor";
+import type { WalletClient } from "viem";
+import { useAccount } from "wagmi";
 import { CheckCircleIcon, CodeBracketIcon, PencilSquareIcon, XCircleIcon } from "@heroicons/react/24/outline";
 import { InteractiveMarkdownForm } from "~~/components/InteractiveMarkdownForm";
 import { Audit } from "~~/types";
 import { parseMd, renderMd } from "~~/utils/md-parser";
+import { createAttestation, getClient } from "~~/utils/signAttestation";
+import { getWalletClient } from "~~/utils/wallet";
 
 const AuditView = ({ audit, saveAudit }: { audit: Audit; saveAudit: (audit: Audit) => void }) => {
+  const { address } = useAccount();
+  const [walletClient, setWalletClient] = useState<WalletClient | null>(null);
+  const [client, setClient] = useState<SignProtocolClient | null>(null);
+
+  useEffect(() => {
+    const client = getWalletClient();
+    setWalletClient(client);
+  }, [address]);
+
+  useEffect(() => {
+    if (walletClient) {
+      setClient(getClient(walletClient));
+    }
+  }, [walletClient]);
+
   const [title, setTitle] = useState(audit.title);
   const [titleEditMode, setTitleEditMode] = useState(false);
   const [markdown, setMarkdown] = useState(audit.data);
@@ -34,6 +54,8 @@ const AuditView = ({ audit, saveAudit }: { audit: Audit; saveAudit: (audit: Audi
 
   return (
     <div className="space-y-4 h-full">
+      {/* TODO: add loading & result */}
+      {client && <button onClick={() => createAttestation(audit.id, audit.data, client)}>Sign Attestation</button>}
       <div className="flex justify-between">
         {/* Title */}
         <div className="flex items-center gap-2">
@@ -90,7 +112,6 @@ const AuditView = ({ audit, saveAudit }: { audit: Audit; saveAudit: (audit: Audi
           </button>
         </div>
       </div>
-
       <div className="h-full">
         {mode === "fillIn" && <InteractiveMarkdownForm markdown={markdown} setMarkdown={setMarkdown} />}
         {mode === "editSource" && <MarkdownEditor value={markdown} onChange={(value: string) => setMarkdown(value)} />}
