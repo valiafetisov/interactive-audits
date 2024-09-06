@@ -34,7 +34,7 @@ const ClickableListItem = ({ children, setSelectedKey, isSelected }: ClickableLi
   );
 };
 
-export const MarkdownRenderer = ({ markdown, setMarkdown }: MarkdownRendererProps) => {
+export const InteractiveMarkdownForm = ({ markdown, setMarkdown }: MarkdownRendererProps) => {
   const [selectedKey, setSelectedKey] = useState("");
   const [checkboxes, setCheckboxes] = useState<Checkbox[]>([]);
   const [tree, setTree] = useState<Root | null>(null);
@@ -71,6 +71,7 @@ export const MarkdownRenderer = ({ markdown, setMarkdown }: MarkdownRendererProp
       }
       return checkbox;
     });
+    console.log(updatedCheckboxes);
     setCheckboxes(updatedCheckboxes);
   };
 
