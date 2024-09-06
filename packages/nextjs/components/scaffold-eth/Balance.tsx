@@ -4,7 +4,7 @@ import { Address, formatEther } from "viem";
 import { useDisplayUsdMode } from "~~/hooks/scaffold-eth/useDisplayUsdMode";
 import { useTargetNetwork } from "~~/hooks/scaffold-eth/useTargetNetwork";
 import { useWatchBalance } from "~~/hooks/scaffold-eth/useWatchBalance";
-import { useGlobalState } from "~~/services/store/store";
+import { useGlobalState } from "~~/services/store";
 
 type BalanceProps = {
   address?: Address;
