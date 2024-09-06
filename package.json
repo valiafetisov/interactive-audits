@@ -43,8 +43,5 @@
   },
   "engines": {
     "node": ">=18.17.0"
-  },
-  "dependencies": {
-    "@ethsign/sp-sdk": "^0.7.3"
   }
 }

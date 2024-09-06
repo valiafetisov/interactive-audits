@@ -3116,6 +3116,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@se-2/nextjs@workspace:packages/nextjs"
   dependencies:
+    "@ethsign/sp-sdk": ^0.7.3
     "@heroicons/react": ^2.0.11
     "@rainbow-me/rainbowkit": 2.1.2
     "@tanstack/react-query": ^5.28.6
@@ -15665,7 +15666,6 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "se-2@workspace:."
   dependencies:
-    "@ethsign/sp-sdk": ^0.7.3
     husky: ^8.0.1
     lint-staged: ^13.0.3
   languageName: unknown
