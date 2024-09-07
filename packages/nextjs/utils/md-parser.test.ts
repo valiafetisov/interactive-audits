@@ -46,18 +46,18 @@ const EXPECTED_MD_RENDER = `Any kind of md document, with any kind of content, l
   * ⚠️ Already marked as acceptable
 `;
 
-describe("md-parser", async () => {
-  const { tree, currentCheckboxes, defaultCheckboxes } = await parseMd(EXAMPLE_MD_INPUT);
+describe("md-parser", () => {
+  const { tree, currentCheckboxes, defaultCheckboxes } = parseMd(EXAMPLE_MD_INPUT);
 
-  test("correctly clears up the checklist (against EXPECTED_MD_TEMPLATE)", async () => {
+  test("correctly clears up the checklist (against EXPECTED_MD_TEMPLATE)", () => {
     expect(tree).toBeTruthy();
-    const renderedEmpty = await renderMd({ tree, checkboxes: defaultCheckboxes });
+    const renderedEmpty = renderMd({ tree, checkboxes: defaultCheckboxes });
     expect(renderedEmpty).toEqual(EXPECTED_MD_TEMPLATE);
   });
 
-  test("correctly applies custom checkboxes (against EXPECTED_MD_RENDER)", async () => {
+  test("correctly applies custom checkboxes (against EXPECTED_MD_RENDER)", () => {
     currentCheckboxes[0].conclusion = "correct";
-    const renderedWithChecks = await renderMd({ tree, checkboxes: currentCheckboxes });
+    const renderedWithChecks = renderMd({ tree, checkboxes: currentCheckboxes });
     expect(renderedWithChecks).toEqual(EXPECTED_MD_RENDER);
   });
 });
