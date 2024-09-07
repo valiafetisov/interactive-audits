@@ -1,44 +1,35 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { SignProtocolClient } from "@ethsign/sp-sdk";
 import MarkdownEditor from "@uiw/react-markdown-editor";
-import type { WalletClient } from "viem";
-import { useAccount } from "wagmi";
-import { CheckCircleIcon, CodeBracketIcon, PencilSquareIcon, XCircleIcon } from "@heroicons/react/24/outline";
+import {
+  ArrowPathIcon,
+  CheckCircleIcon,
+  CodeBracketIcon,
+  PencilSquareIcon,
+  XCircleIcon,
+} from "@heroicons/react/24/outline";
 import { InteractiveMarkdownForm } from "~~/components/InteractiveMarkdownForm";
 import { Audit } from "~~/types";
 import { parseMd, renderMd } from "~~/utils/md-parser";
-import { createAttestation, getClient } from "~~/utils/signAttestation";
-import { getWalletClient } from "~~/utils/wallet";
 
-const AuditView = ({ audit, saveAudit }: { audit: Audit; saveAudit: (audit: Audit) => void }) => {
-  const { address } = useAccount();
-  const [walletClient, setWalletClient] = useState<WalletClient | null>(null);
-  const [client, setClient] = useState<SignProtocolClient | null>(null);
-
-  useEffect(() => {
-    const client = getWalletClient();
-    setWalletClient(client);
-  }, [address]);
-
-  useEffect(() => {
-    if (walletClient) {
-      setClient(getClient(walletClient));
-    }
-  }, [walletClient]);
-
+const AuditView = ({
+  audit,
+  saveAudit,
+  showAuditButton,
+  attestAudit,
+  isAttesting,
+}: {
+  audit: Audit;
+  saveAudit: (audit: Audit) => void;
+  showAuditButton: boolean;
+  attestAudit: () => void;
+  isAttesting: boolean;
+}) => {
   const [title, setTitle] = useState(audit.title);
   const [titleEditMode, setTitleEditMode] = useState(false);
   const [markdown, setMarkdown] = useState(audit.data);
   const [mode, setMode] = useState<"fillIn" | "editSource">("fillIn");
-
-  function switchTitleEditMode(isTitleEditMode: boolean) {
-    if (isTitleEditMode) {
-      setTitle(title);
-    }
-    setTitleEditMode(isTitleEditMode);
-  }
 
   useEffect(() => {
     const fetchMarkdown = async () => {
@@ -52,10 +43,15 @@ const AuditView = ({ audit, saveAudit }: { audit: Audit; saveAudit: (audit: Audi
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mode]);
 
+  function switchTitleEditMode(isTitleEditMode: boolean) {
+    if (isTitleEditMode) {
+      setTitle(title);
+    }
+    setTitleEditMode(isTitleEditMode);
+  }
+
   return (
     <div className="space-y-4 h-full">
-      {/* TODO: add loading & result */}
-      {client && <button onClick={() => createAttestation(audit.id, audit.data, client)}>Sign Attestation</button>}
       <div className="flex justify-between">
         {/* Title */}
         <div className="flex items-center gap-2">
@@ -112,6 +108,18 @@ const AuditView = ({ audit, saveAudit }: { audit: Audit; saveAudit: (audit: Audi
           </button>
         </div>
       </div>
+      {showAuditButton && (
+        <button
+          className="btn btn-primary btn-sm w-40 border-primary border-2"
+          disabled={isAttesting}
+          onClick={attestAudit}
+        >
+          <div className="flex gap-2">
+            Sign Attestation
+            {isAttesting && <ArrowPathIcon className="animate-spin h-5 w-5 inline-block" />}
+          </div>
+        </button>
+      )}
       <div className="h-full">
         {mode === "fillIn" && <InteractiveMarkdownForm markdown={markdown} setMarkdown={setMarkdown} />}
         {mode === "editSource" && <MarkdownEditor value={markdown} onChange={(value: string) => setMarkdown(value)} />}
