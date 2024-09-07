@@ -1,5 +1,4 @@
-import { useEffect, useRef, useState } from "react";
-import { Root } from "mdast";
+import { useState } from "react";
 import ReactMarkdown from "react-markdown";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import remarkGfm from "remark-gfm";
@@ -33,14 +32,9 @@ const ClickableListItem = ({ children, setSelectedKey, isSelected }: ClickableLi
   );
 };
 
-const generateMarkdown = (markdown: string, checkboxes: Checkbox[]) => {
-  const { tree } = parseMd(markdown);
-  return renderMd({ tree, checkboxes });
-};
-
 export const InteractiveMarkdownForm = ({ markdown, setMarkdown }: MarkdownRendererProps) => {
   const [index, setIndex] = useState(0);
-  const { currentCheckboxes } = parseMd(markdown);
+  const { tree, currentCheckboxes } = parseMd(markdown);
   const [checkboxes] = useState<Checkbox[]>(currentCheckboxes);
   const checkbox = checkboxes[index];
 
@@ -56,7 +50,7 @@ export const InteractiveMarkdownForm = ({ markdown, setMarkdown }: MarkdownRende
 
   const handleStatusSubmit = (selectedStatus: Checkbox["conclusion"]) => {
     checkboxes[index].conclusion = selectedStatus;
-    setMarkdown(generateMarkdown(markdown, checkboxes));
+    setMarkdown(renderMd({ tree, checkboxes }));
     moveIndex(1);
   };
 
