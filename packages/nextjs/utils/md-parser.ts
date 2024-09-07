@@ -129,7 +129,6 @@ export const parseMd = function (text: string) {
 export const renderMd = function ({ tree, checkboxes }: { tree: Root; checkboxes: Checkbox[] }) {
   // apply modified checkboxes back to the md tree
   for (const checkbox of checkboxes) {
-    // @ts-expect-error
     pointer.set(tree, `${checkbox.path}/conclusion`, checkbox.conclusion);
   }
   visit(tree, "listItem", renderCustomMarkers);
