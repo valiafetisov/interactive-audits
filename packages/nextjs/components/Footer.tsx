@@ -12,11 +12,11 @@ export const Footer = () => {
       </p>
       <a
         className="flex justify-center items-center gap-1"
-        href="https://github.com/valiafetisov/interactive-audits"
+        href="https://ethglobal.com/showcase/sidelabs-d4uxd"
         target="_blank"
         rel="noreferrer"
       >
-        <span className="link">On-chain Audit</span>
+        <span className="link">ETHGlobal</span>
       </a>
     </div>
   );

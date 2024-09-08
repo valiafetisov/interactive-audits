@@ -27,20 +27,23 @@ const Home: NextPage = () => {
   return (
     <>
       <div className="flex items-center flex-col flex-grow">
-        <div className="h-32 flex items-center">
-          <h1 className="text-center block text-4xl font-bold">Interactive On-chain Audits</h1>
+        <div className="h-56 flex items-center">
+          <h1 className="text-center block text-4xl font-bold">AuditTrail – interactive checklists</h1>
         </div>
-        <div className="flex-grow w-full bg-base-300 px-8 py-12 space-y-4">
-          <h2 className="text-center">
-            <span className="block text-2xl font-bold">Your drafts</span>
+        <div className="flex-grow w-full px-8 py-12 space-y-4">
+          <h2 className="flex items-center">
+            <span className="text-xl font-bold mr-4">Your audit drafts</span>
+            <button
+              className="btn btn-primary rounded-full text-base p-1 pr-2 h-auto !min-h-2"
+              onClick={createNewAudit}
+            >
+              <PlusCircleIcon className="w-6 h-6" />
+              Create new draft from scratch
+            </button>
           </h2>
           {hydrated ? (
             <>
               <DraftAuditList />
-              <button className="btn btn-primary btn-md rounded-full" onClick={createNewAudit}>
-                <PlusCircleIcon className="w-6 h-6" />
-                Create new draft from scratch
-              </button>
             </>
           ) : (
             <div>Loading...</div>
