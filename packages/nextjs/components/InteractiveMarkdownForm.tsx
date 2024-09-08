@@ -1,5 +1,4 @@
-import { useEffect, useRef, useState } from "react";
-import { Root } from "mdast";
+import { useState } from "react";
 import ReactMarkdown from "react-markdown";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import remarkGfm from "remark-gfm";
@@ -26,7 +25,6 @@ const ClickableListItem = ({ children, setSelectedKey, isSelected }: ClickableLi
     event.stopPropagation();
     setSelectedKey();
   };
-
   return (
     <li onClick={handleClick} className={`clickable-list-item ${isSelected ? "selected" : ""}`}>
       {children}
@@ -35,48 +33,36 @@ const ClickableListItem = ({ children, setSelectedKey, isSelected }: ClickableLi
 };
 
 export const InteractiveMarkdownForm = ({ markdown, setMarkdown }: MarkdownRendererProps) => {
-  const [selectedKey, setSelectedKey] = useState("");
-  const [checkboxes, setCheckboxes] = useState<Checkbox[]>([]);
-  const [tree, setTree] = useState<Root | null>(null);
-  const prevMarkdownRef = useRef("");
+  const [index, setIndex] = useState(0);
+  const { tree, currentCheckboxes } = parseMd(markdown);
+  const [checkboxes] = useState<Checkbox[]>(currentCheckboxes);
+  const checkbox = checkboxes[index];
 
-  useEffect(() => {
-    // Only re-parse the markdown when it was changed
-    if (markdown === prevMarkdownRef.current) return;
-    const fetchMarkdown = async () => {
-      const { tree: currentTree, currentCheckboxes } = await parseMd(markdown);
-      setTree(currentTree);
-      setCheckboxes(currentCheckboxes);
-    };
-    fetchMarkdown();
+  const selectedKey = checkboxes[index] ? getKeyFromPosition(checkboxes[index].position) : "";
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [markdown, setMarkdown]);
-
-  useEffect(() => {
-    const fetchMarkdown = async () => {
-      if (!tree) return; // tree should exist at this point
-      const renderedMarkdown = await renderMd({ tree, checkboxes });
-      setMarkdown(renderedMarkdown);
-      prevMarkdownRef.current = renderedMarkdown;
-    };
-    fetchMarkdown();
-  }, [checkboxes, setMarkdown, tree]);
+  const moveIndex = (by: number) => {
+    let nextIndex = (index + by) % checkboxes.length;
+    if (nextIndex < 0) {
+      nextIndex = checkboxes.length - 1;
+    }
+    setIndex(nextIndex);
+  };
 
   const handleStatusSubmit = (selectedStatus: Checkbox["conclusion"]) => {
-    const updatedCheckboxes = checkboxes.map(checkbox => {
-      const checkboxKey = getKeyFromPosition(checkbox.position);
-      if (checkboxKey === selectedKey) {
-        checkbox.conclusion = selectedStatus;
-      }
-      return checkbox;
-    });
-    console.log(updatedCheckboxes);
-    setCheckboxes(updatedCheckboxes);
+    checkboxes[index].conclusion = selectedStatus;
+    setMarkdown(renderMd({ tree, checkboxes }));
+    moveIndex(1);
+  };
+
+  const selectKey = (key: string) => {
+    const index = checkboxes.findIndex(c => getKeyFromPosition(c.position) === key);
+    if (index >= 0) {
+      setIndex(index);
+    }
   };
 
   return (
-    <div onClick={() => setSelectedKey("")} className="markdown-body bg-white p-2 h-full">
+    <div className="markdown-body bg-white p-2 min-h-full">
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         components={{
@@ -96,7 +82,7 @@ export const InteractiveMarkdownForm = ({ markdown, setMarkdown }: MarkdownRende
             // Generate a unique key for the list item based on its position
             const key = getKeyFromPosition(props.node.position);
             return (
-              <ClickableListItem setSelectedKey={() => setSelectedKey(key)} isSelected={selectedKey === key}>
+              <ClickableListItem setSelectedKey={() => selectKey(key)} isSelected={selectedKey === key}>
                 {children}
               </ClickableListItem>
             );
@@ -107,22 +93,49 @@ export const InteractiveMarkdownForm = ({ markdown, setMarkdown }: MarkdownRende
         {markdown}
       </ReactMarkdown>
 
-      {selectedKey && (
-        <div className="w-[calc(100%-2rem)] flex fixed z-20 bottom-16 gap-2">
-          <button className="btn btn-sm btn-outline bg-white" onClick={() => handleStatusSubmit("correct")}>
-            Correct
-          </button>
-          <button className="btn btn-sm btn-outline bg-white" onClick={() => handleStatusSubmit("critical")}>
-            Critical
-          </button>
-          <button className="btn btn-sm btn-outline bg-white" onClick={() => handleStatusSubmit("acceptable")}>
-            Acceptable
-          </button>
-          <button className="btn btn-sm btn-outline bg-white" onClick={() => handleStatusSubmit("not applicable")}>
-            Not Applicable
-          </button>
-        </div>
-      )}
+      <div className="w-full flex fixed z-20 bottom-12 gap-2 p-2">
+        <button className="btn btn-sm btn-outline bg-white" onClick={() => moveIndex(-1)}>
+          Prev
+        </button>
+        <button className="btn btn-sm btn-outline bg-white" onClick={() => moveIndex(1)}>
+          Next
+        </button>
+        <button
+          className="btn btn-sm btn-outline bg-white"
+          disabled={checkbox?.conclusion === "correct"}
+          onClick={() => handleStatusSubmit("correct")}
+        >
+          ✅ Confirm
+        </button>
+        <button
+          className="btn btn-sm btn-outline bg-white"
+          disabled={checkbox?.conclusion === "critical"}
+          onClick={() => handleStatusSubmit("critical")}
+        >
+          ❌ Raise
+        </button>
+        <button
+          className="btn btn-sm btn-outline bg-white"
+          disabled={checkbox?.conclusion === "acceptable"}
+          onClick={() => handleStatusSubmit("acceptable")}
+        >
+          ⚠️ Warn
+        </button>
+        <button
+          className="btn btn-sm btn-outline bg-white line-through"
+          disabled={checkbox?.conclusion === "not applicable"}
+          onClick={() => handleStatusSubmit("not applicable")}
+        >
+          Discard
+        </button>
+        <button
+          className="btn btn-sm btn-outline bg-white"
+          disabled={checkbox?.conclusion === undefined}
+          onClick={() => handleStatusSubmit(undefined)}
+        >
+          Clear
+        </button>
+      </div>
     </div>
   );
 };

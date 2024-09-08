@@ -16,13 +16,11 @@ import { parseMd, renderMd } from "~~/utils/md-parser";
 const AuditView = ({
   audit,
   saveAudit,
-  showAuditButton,
   attestAudit,
   isAttesting,
 }: {
   audit: Audit;
   saveAudit: (audit: Audit) => void;
-  showAuditButton: boolean;
   attestAudit: () => void;
   isAttesting: boolean;
 }) => {
@@ -30,6 +28,13 @@ const AuditView = ({
   const [titleEditMode, setTitleEditMode] = useState(false);
   const [markdown, setMarkdown] = useState(audit.data);
   const [mode, setMode] = useState<"fillIn" | "editSource">("fillIn");
+
+  function switchTitleEditMode(isTitleEditMode: boolean) {
+    if (isTitleEditMode) {
+      setTitle(title);
+    }
+    setTitleEditMode(isTitleEditMode);
+  }
 
   useEffect(() => {
     const fetchMarkdown = async () => {
@@ -42,13 +47,6 @@ const AuditView = ({
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mode]);
-
-  function switchTitleEditMode(isTitleEditMode: boolean) {
-    if (isTitleEditMode) {
-      setTitle(title);
-    }
-    setTitleEditMode(isTitleEditMode);
-  }
 
   return (
     <div className="space-y-4 h-full">
@@ -108,7 +106,8 @@ const AuditView = ({
           </button>
         </div>
       </div>
-      {showAuditButton && (
+
+      {mode === "fillIn" && (
         <button
           className="btn btn-primary btn-sm w-40 border-primary border-2"
           disabled={isAttesting}
@@ -120,6 +119,7 @@ const AuditView = ({
           </div>
         </button>
       )}
+
       <div className="h-full">
         {mode === "fillIn" && <InteractiveMarkdownForm markdown={markdown} setMarkdown={setMarkdown} />}
         {mode === "editSource" && <MarkdownEditor value={markdown} onChange={(value: string) => setMarkdown(value)} />}

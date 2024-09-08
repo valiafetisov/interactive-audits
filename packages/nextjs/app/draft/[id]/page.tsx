@@ -72,13 +72,7 @@ export default function DraftPage() {
       {draft && (
         <div className="px-8 py-12 h-full space-y-2">
           {/* contents */}
-          <AuditView
-            audit={draft}
-            showAuditButton={!!client}
-            saveAudit={saveDraftAudit}
-            attestAudit={attestAudit}
-            isAttesting={isAttesting}
-          />
+          <AuditView audit={draft} saveAudit={saveDraftAudit} isAttesting={isAttesting} attestAudit={attestAudit} />
         </div>
       )}
       {!draft && (
