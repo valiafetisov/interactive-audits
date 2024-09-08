@@ -42,7 +42,7 @@ export const PARSERS = [
     type: "not applicable",
     detect: (node: ListItem) => {
       // @ts-expect-error
-      return node?.children?.[0].children?.[0].type === "delete";
+      return node?.children?.[0]?.children?.[0].type === "delete";
     },
     clear: (_text: string, _marker: string, node: ListItem) => {
       // @ts-expect-error

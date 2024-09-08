@@ -19,6 +19,7 @@ const Home: NextPage = () => {
       title: defaultTitle,
       data: "",
       createdAt: new Date(),
+      isAttested: false,
     });
 
     router.push(`/draft/${id}`);
