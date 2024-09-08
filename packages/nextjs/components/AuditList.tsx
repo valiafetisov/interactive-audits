@@ -1,4 +1,5 @@
 import React from "react";
+import { format } from "date-fns";
 import { useHydrateDraftAudits } from "~~/services/store";
 
 /**
@@ -16,7 +17,10 @@ export const AuditList = () => {
       {audits.map(audit => {
         return (
           <div key={audit.id} className="flex items-center justify-between p-4 bg-base-200 rounded-md my-2">
-            <span>{audit.title}</span>
+            <span>{audit.title}</span>{" "}
+            {audit.createdAt && (
+              <span className="text-gray-500">Audited at {format(audit.createdAt, "yyyy-MM-dd hh:mm")}</span>
+            )}
           </div>
         );
       })}
