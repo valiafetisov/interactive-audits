@@ -16,7 +16,7 @@ export default function DraftPage() {
   const router = useRouter();
   const params = useParams();
   const id = params.id as string;
-  const { draftAudits, updateDraftAudit } = useHydrateDraftAudits();
+  const { draftAudits, updateDraftAudit, addAudit, removeDraftAudit } = useHydrateDraftAudits();
   const [draft, setDraft] = useState<Audit | undefined>();
   const { address } = useAccount();
   const [walletClient, setWalletClient] = useState<WalletClient | null>(null);
@@ -57,8 +57,15 @@ export default function DraftPage() {
 
     setIsAttesting(true);
     try {
-      await createAttestation(draft.id, draft.data, client);
+      const { attestationId } = await createAttestation(draft, client);
       notification.success("Attestation created");
+      // Update the draft to be attested
+      removeDraftAudit(draft.id);
+      addAudit({
+        ...draft,
+        attestationId,
+        attestedAt: new Date(),
+      });
       router.push(`/`);
     } catch (e) {
       console.error(e);

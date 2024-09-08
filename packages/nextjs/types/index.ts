@@ -3,5 +3,6 @@ export interface Audit {
   title: string;
   data: string;
   createdAt: Date;
-  isAttested: boolean;
+  attestedAt?: Date;
+  attestationId?: string;
 }
