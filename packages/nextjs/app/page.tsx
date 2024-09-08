@@ -28,36 +28,41 @@ const Home: NextPage = () => {
   return (
     <>
       <div className="flex items-center flex-col flex-grow">
-        <div className="h-32 flex items-center">
-          <h1 className="text-center block text-4xl font-bold">Interactive On-chain Audits</h1>
+        <div className="h-36 mt-14 flex items-center">
+          <div className="text-center">
+            <h1 className="block italic text-5xl font-bold pb-0 mb-0">AuditTrail</h1>
+            <div className="text-2xl text-neutral-500">Interactive checklists</div>
+          </div>
         </div>
-        <div className="flex-grow w-full bg-base-300 px-8 py-12 space-y-4">
+        <div className="flex-grow w-full px-8 space-y-4">
           <div>
-            <h2 className="text-center">
-              <span className="block text-2xl font-bold">Lastly signed audits</span>
+            <h2 className="mt-10 flex items-center">
+              <span className="text-xl font-bold mr-3">Your audit drafts</span>
+            </h2>
+            {hydrated ? (
+              <>
+                <DraftAuditList />
+              </>
+            ) : (
+              <div className="flex items-center justify-center p-4 mb-2 bg-base-300">Loading...</div>
+            )}
+            <div className="flex justify-center">
+              <button className="btn btn-primary h-auto text-base" onClick={createNewAudit}>
+                <PlusCircleIcon className="w-6 h-6" />
+                Create new draft from scratch
+              </button>
+            </div>
+          </div>
+          <div>
+            <h2 className="">
+              <span className="block text-xl font-bold">Last signed audits</span>
             </h2>
             {hydrated ? (
               <>
                 <AuditList />
               </>
             ) : (
-              <div>Loading...</div>
-            )}
-          </div>
-          <div>
-            <h2 className="text-center">
-              <span className="block text-2xl font-bold">Your drafts</span>
-            </h2>
-            {hydrated ? (
-              <>
-                <DraftAuditList />
-                <button className="btn btn-primary btn-md rounded-full" onClick={createNewAudit}>
-                  <PlusCircleIcon className="w-6 h-6" />
-                  Create new draft from scratch
-                </button>
-              </>
-            ) : (
-              <div>Loading...</div>
+              <div className="flex items-center justify-center p-4 bg-base-300">Loading...</div>
             )}
           </div>
         </div>
