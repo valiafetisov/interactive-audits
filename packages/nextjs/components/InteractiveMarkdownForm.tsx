@@ -62,7 +62,7 @@ export const InteractiveMarkdownForm = ({ markdown, setMarkdown }: MarkdownRende
   };
 
   return (
-    <div className="markdown-body bg-white p-2 h-full">
+    <div className="markdown-body bg-white p-2 min-h-full">
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         components={{
