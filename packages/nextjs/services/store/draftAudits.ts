@@ -11,7 +11,9 @@ import type { Audit } from "~~/types";
  */
 
 type AuditState = {
+  audits: Audit[];
   draftAudits: Audit[];
+  addAudit: (audit: Audit) => void;
   addDraftAudit: (audit: Audit) => void;
   removeDraftAudit: (id: string) => void;
   updateDraftAudit: (id: string, audit: Audit) => void;
@@ -20,14 +22,16 @@ type AuditState = {
 const useDraftAuditState = create<AuditState>()(
   persist(
     set => ({
+      audits: [],
       draftAudits: [],
+      addAudit: audit => set(state => ({ audits: [...state.audits, audit] })),
       addDraftAudit: audit => set(state => ({ draftAudits: [...state.draftAudits, audit] })),
       removeDraftAudit: id => set(state => ({ draftAudits: state.draftAudits.filter(audit => audit.id !== id) })),
       updateDraftAudit: (id, updatedAudit) =>
         set(state => ({ draftAudits: state.draftAudits.map(audit => (audit.id === id ? updatedAudit : audit)) })),
     }),
     {
-      name: "draftAudits",
+      name: "audits",
       storage: createJSONStorage(() => localStorage),
     },
   ),

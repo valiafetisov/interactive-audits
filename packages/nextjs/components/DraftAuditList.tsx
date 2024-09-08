@@ -22,7 +22,7 @@ export const DraftAuditList = () => {
 
   return draftAudits.length === 0 ? (
     <div className="flex items-center justify-center p-4 bg-base-300 rounded-md my-2">
-      <span className="text-gray-500">No audits found</span>
+      <span className="text-gray-500">No drafts found</span>
     </div>
   ) : (
     <div>

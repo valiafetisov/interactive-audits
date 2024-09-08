@@ -2,98 +2,84 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { CheckCircleIcon, PencilSquareIcon, XCircleIcon } from "@heroicons/react/24/outline";
+import { SignProtocolClient } from "@ethsign/sp-sdk";
+import type { WalletClient } from "viem";
+import { useAccount } from "wagmi";
+import AuditView from "~~/components/AuditView";
 import { useHydrateDraftAudits } from "~~/services/store";
 import type { Audit } from "~~/types";
 import { notification } from "~~/utils/scaffold-eth";
+import { createAttestation, getClient } from "~~/utils/signAttestation";
+import { getWalletClient } from "~~/utils/wallet";
 
 export default function DraftPage() {
   const router = useRouter();
   const params = useParams();
   const id = params.id as string;
-  const [titleEditMode, setTitleEditMode] = useState(false);
-  const [editedTitle, setEditedTitle] = useState("");
-  const { draftAudits, updateDraftAudit } = useHydrateDraftAudits();
+  const { draftAudits, updateDraftAudit, addAudit, removeDraftAudit } = useHydrateDraftAudits();
   const [draft, setDraft] = useState<Audit | undefined>();
+  const { address } = useAccount();
+  const [walletClient, setWalletClient] = useState<WalletClient | null>(null);
+  const [client, setClient] = useState<SignProtocolClient | null>(null);
+  const [isAttesting, setIsAttesting] = useState(false);
 
   useEffect(() => {
     const draft = draftAudits.find(audit => audit.id === id);
     setDraft(draft);
   }, [id, draftAudits]);
 
-  function saveTitle() {
-    if (!draft) {
-      console.error("Draft audit not found");
-      return;
+  useEffect(() => {
+    const client = getWalletClient();
+    setWalletClient(client);
+  }, [address]);
+
+  useEffect(() => {
+    if (walletClient) {
+      setClient(getClient(walletClient));
     }
+  }, [walletClient]);
 
-    setTitleEditMode(false);
-    setDraft({ ...draft, title: editedTitle });
-  }
-
-  function saveDraftAudit() {
-    if (!draft) {
-      console.error("Draft audit not found");
-      return;
-    }
-
-    updateDraftAudit(draft.id, draft);
+  function saveDraftAudit(audit: Audit) {
+    updateDraftAudit(audit.id, audit);
     notification.success("Draft audit saved!");
-    router.push(`/`);
   }
 
-  function switchTitleEditMode(isTitleEditMode: boolean) {
-    if (!draft) {
-      console.error("Draft audit not found");
+  async function attestAudit() {
+    if (!client) {
+      notification.error("Please connect your wallet");
       return;
     }
 
-    if (isTitleEditMode) {
-      setEditedTitle(draft.title);
+    if (!draft) {
+      notification.error("Draft not found");
+      return;
     }
-    setTitleEditMode(isTitleEditMode);
+
+    setIsAttesting(true);
+    try {
+      const { attestationId } = await createAttestation(draft, client);
+      notification.success("Attestation created");
+      // Update the draft to be attested
+      removeDraftAudit(draft.id);
+      addAudit({
+        ...draft,
+        attestationId,
+        attestedAt: new Date(),
+      });
+      router.push(`/`);
+    } catch (e) {
+      console.error(e);
+      notification.error("Attestation failed");
+    }
+    setIsAttesting(false);
   }
 
   return (
     <>
       {draft && (
-        <div className="px-8 py-12 space-y-2">
-          <div className="flex justify-between">
-            {/* Title */}
-            {titleEditMode && (
-              <div className="flex flex-gap-3">
-                <input
-                  type="text"
-                  className="border-2 rounded px-1"
-                  value={editedTitle}
-                  onChange={e => setEditedTitle(e.target.value)}
-                />
-                <CheckCircleIcon className="w-7 h-7 ml-4 text-blue-400 hover:opacity-80" onClick={saveTitle} />
-                <XCircleIcon
-                  className="w-7 h-7 text-red-400 hover:opacity-80"
-                  onClick={() => switchTitleEditMode(false)}
-                />
-              </div>
-            )}
-            {!titleEditMode && (
-              <div className="flex gap-2 items-center">
-                <span>{draft.title}</span>
-                <PencilSquareIcon
-                  className="w-6 h-6 text-blue-400 hover:opacity-80"
-                  onClick={() => switchTitleEditMode(true)}
-                />
-              </div>
-            )}
-            <button disabled={titleEditMode} className="btn btn-primary btn-sm" onClick={saveDraftAudit}>
-              Save
-            </button>
-          </div>
+        <div className="h-full space-y-2">
           {/* contents */}
-          <textarea
-            className="w-full h-96 border-2 rounded px-1"
-            value={draft.data}
-            onChange={e => setDraft({ ...draft, data: e.target.value })}
-          />
+          <AuditView audit={draft} saveAudit={saveDraftAudit} isAttesting={isAttesting} attestAudit={attestAudit} />
         </div>
       )}
       {!draft && (
